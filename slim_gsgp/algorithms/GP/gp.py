@@ -33,22 +33,23 @@ from slim_gsgp.algorithms.GP.representations.tree import Tree
 from slim_gsgp.utils.diversity import niche_entropy
 from slim_gsgp.utils.logger import logger
 from slim_gsgp.utils.utils import verbose_reporter
+from Logger import Logger
 
 
 class GP:
     def __init__(
-        self,
-        pi_init,
-        initializer,
-        selector,
-        mutator,
-        crossover,
-        find_elit_func,
-        p_m=0.2,
-        p_xo=0.8,
-        pop_size=100,
-        seed=0,
-        settings_dict=None,
+            self,
+            pi_init,
+            initializer,
+            selector,
+            mutator,
+            crossover,
+            find_elit_func,
+            p_m=0.2,
+            p_xo=0.8,
+            pop_size=100,
+            seed=0,
+            settings_dict=None,
     ):
         """
         Initialize the Genetic Programming algorithm.
@@ -95,24 +96,24 @@ class GP:
         Tree.CONSTANTS = pi_init["CONSTANTS"]
 
     def solve(
-        self,
-        X_train,
-        X_test,
-        y_train,
-        y_test,
-        curr_dataset,
-        n_iter=20,
-        elitism=True,
-        log=0,
-        verbose=0,
-        test_elite=False,
-        log_path=None,
-        run_info=None,
-        max_depth=None,
-        ffunction=None,
-        n_elites=1,
-        depth_calculator=None,
-        n_jobs = 1
+            self,
+            X_train,
+            X_test,
+            y_train,
+            y_test,
+            curr_dataset,
+            n_iter=20,
+            elitism=True,
+            log=0,
+            verbose=0,
+            test_elite=False,
+            log_path=None,
+            run_info=None,
+            max_depth=None,
+            ffunction=None,
+            n_elites=1,
+            depth_calculator=None,
+            n_jobs=1
     ):
         """
         Execute the Genetic Programming algorithm.
@@ -178,12 +179,14 @@ class GP:
         if test_elite:
             self.elite.evaluate(ffunction, X=X_test, y=y_test, testing=True)
 
+        self.logger_timing = 0
+        print("initial ", self.logger_timing)
         # logging the results if the log level is not 0
-
         if log != 0:
             self.log_generation(
                     0, population, end - start, log, log_path, run_info
                 )
+
 
         # displaying the results on console if verbose level is not 0
         if verbose != 0:
@@ -238,16 +241,18 @@ class GP:
                     self.elite.node_count,
                 )
 
+        print("Current logger timing: ", self.logger_timing)
+
     def evolve_population(
-        self,
-        population,
-        ffunction,
-        max_depth,
-        depth_calculator,
-        elitism,
-        X_train,
-        y_train,
-        n_jobs=1
+            self,
+            population,
+            ffunction,
+            max_depth,
+            depth_calculator,
+            elitism,
+            X_train,
+            y_train,
+            n_jobs=1
     ):
         """
         Evolve the population for one iteration (generation).
@@ -290,7 +295,7 @@ class GP:
         # filling the offspring population
         while len(offs_pop) < self.pop_size:
             # choosing between crossover and mutation
-            if random.random() < self.p_xo: # if crossover is selected
+            if random.random() < self.p_xo:  # if crossover is selected
                 # choose two parents
                 p1, p2 = self.selector(population), self.selector(population)
                 # make sure that the parents are different
@@ -308,8 +313,8 @@ class GP:
                 # assuring the offspring do not exceed max_depth
                 if max_depth is not None:
                     while (
-                        depth_calculator(offs1) > max_depth
-                        or depth_calculator(offs2) > max_depth
+                            depth_calculator(offs1) > max_depth
+                            or depth_calculator(offs2) > max_depth
                     ):
                         offs1, offs2 = self.crossover(
                             p1.repr_,
@@ -321,7 +326,7 @@ class GP:
                 # grouping the offspring in a list to be added to the offspring population
                 offspring = [offs1, offs2]
 
-            else: # if mutation was chosen
+            else:  # if mutation was chosen
                 # choosing a parent
                 p1 = self.selector(population)
                 # generating a mutated offspring from the parent
@@ -351,7 +356,7 @@ class GP:
         return offs_pop, start
 
     def log_generation(
-        self, generation, population, elapsed_time, log, log_path, run_info
+            self, generation, population, elapsed_time, log, log_path, run_info
     ):
         """
         Log the results for the current generation.
@@ -396,6 +401,7 @@ class GP:
         else:
             add_info = [self.elite.test_fitness, self.elite.node_count, log]
 
+        start = time.time()
         logger(
             log_path,
             generation,
@@ -406,3 +412,6 @@ class GP:
             run_info=run_info,
             seed=self.seed,
         )
+        end = time.time()
+
+        self.logger_timing += end - start
