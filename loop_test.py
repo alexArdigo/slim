@@ -25,7 +25,7 @@ for i in range(10):
 
     # GPU memory if available
     if torch.cuda.is_available():
-        gpu_mem_before = torch.cuda.memory_allocated() / 1024 / 1024  # MB
+        torch.cuda.reset_peak_memory_stats()
 
     # Execute SLIM
     gp(
@@ -33,7 +33,7 @@ for i in range(10):
         y_train=y_train,
         dataset_name=f"simples_{i + 1}",
         pop_size=50,
-        n_iter=50,
+        n_iter=10,
         log_path=f"./log/simples_run_{i + 1}.csv",
         seed=11 + i
     )
@@ -44,8 +44,7 @@ for i in range(10):
     mem_used = mem_after - mem_before
 
     if torch.cuda.is_available():
-        gpu_mem_after = torch.cuda.memory_allocated() / 1024 / 1024  # MB
-        gpu_mem_used = gpu_mem_after - gpu_mem_before
+        gpu_mem_used = torch.cuda.max_memory_allocated() / 1024 / 1024  # MB
     else:
         gpu_mem_used = 0
 

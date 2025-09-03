@@ -188,10 +188,10 @@ class GP:
 
         self.log_time = 0
 
-        start = time.time()
+        start_test = time.time()
         logger_test = Logger()
         logger_test.log_generation(
-            *[str(info) for info in run_info],
+            run_info,
             self.seed,
             0,
             float(self.elite.fitness),
@@ -202,8 +202,8 @@ class GP:
             log
         )
 
-        end = time.time()
-        self.log_time = end - start
+        end_test = time.time()
+        self.log_time += end_test - start_test
 
         # displaying the results on console if verbose level is not 0
         if verbose != 0:
@@ -258,7 +258,7 @@ class GP:
                     self.elite.node_count,
                 )
 
-            start = time.time()
+            start_test = time.time()
             logger_test.log_generation(
                 *run_info,
                 self.seed,
@@ -270,15 +270,15 @@ class GP:
                 self.elite.node_count,
                 log
             )
-            end = time.time()
-            self.log_time = end - start
+            end_test = time.time()
+            self.log_time += end_test - start_test
 
-        start = time.time()
+        start_test = time.time()
         logger_test.log_total(log_path)
-        end = time.time()
-        self.log_time = end - start
+        end_test = time.time()
+        self.log_time += end_test - start_test
 
-        print()
+        print("Test logging time: ", self.log_time)
 
     def evolve_population(
             self,
